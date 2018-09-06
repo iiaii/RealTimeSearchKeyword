@@ -1,0 +1,27 @@
+{
+  "name": "realtimesearchkeyword",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/iiaii/RealTimeSearchKeyword.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/iiaii/RealTimeSearchKeyword/issues"
+  },
+  "homepage": "https://github.com/iiaii/RealTimeSearchKeyword#readme",
+  "dependencies": {
+    "cheerio": "^1.0.0-rc.2",
+    "express": "^4.16.3",
+    "iconv": "^2.3.0",
+    "iconv-lite": "^0.4.24",
+    "request": "^2.88.0",
+    "router": "^1.3.3"
+  }
+}
