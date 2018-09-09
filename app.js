@@ -1,20 +1,19 @@
-var request = require("request");
-var cheerio = require("cheerio");
-var requestOptions = {
-    method: "GET"
-    , uri: "http://www.naver.com/"
-    , headers: { "User-Agent": "Mozilla/5.0" }
-    , encoding: null
-};
+var request = require('request');
+var cheerio = require('cheerio');
 
 function key() {
-
-    console.log('1. 소스코드 시작하였습니다.');
-
+    console.log('-----------------------');
+    console.log('실시간 검색어의 연관 검색어 추출 실행.');
+    console.log('-----------------------');
     return new Promise((resolve, reject) => {
-        console.log('p1 실행 시작.');
+        console.log('실시간 검색어 수집중 ...');
+        console.log('-----------------------');
         const linkTable = [];
-        request(requestOptions,
+        request(requestOptions = {
+            method: 'GET'
+            , uri: 'http://www.naver.com/'
+            , headers: { 'User-Agent': 'Mozilla/5.0' }
+        },
             function (error, response, body) {
                 if (error) {
                     rejected(0);
@@ -25,55 +24,69 @@ function key() {
                 postElements.each(
                     function () {
                         var linkData = new Object();
-                        linkData.num = $(this).find("a").find($(".ah_r")).text();
-                        linkData.text = $(this).find("a").find($(".ah_k")).text();
-                        linkData.link = $(this).find("a").attr("href");
+                        linkData.num = $(this).find('a').find($('.ah_r')).text();
+                        linkData.text = $(this).find('a').find($('.ah_k')).text();
+                        linkData.link = $(this).find('a').attr('href');
                         linkTable.push(linkData);
                     }
                 );
-                console.log('p1 실행 종료.');
+                console.log('실시간 검색어 수집 완료.');
+                console.log('-----------------------');
                 resolve(linkTable);
             });
     }).then(linkTable => {
+        var promiseArray = [];
+        console.log('연관 검색어 수집중 ...');
+        console.log('-----------------------');
         linkTable.forEach(
             function (value) {
-                request(requestOptions = {
-                    method: "GET"
-                    , uri: value.link
-                    , headers: {
-                        'accept': ' */*',
-                        'accept-language': ' ko-KR,ko;q=0.9,en-US;q=0.8,en;q=0.7',
-                        'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.99 Safari/537.36',
-                    }
-                    , encoding: null
-                },
-                    function (error, response, body) {
-                        if (error) {
-                            throw error;
+                promiseArray.push(new Promise(function (resolve, reject) {
+                    request(requestOptions = {
+                        method: 'GET'
+                        , uri: value.link
+                        , headers: {
+                            'accept': ' */*',
+                            'accept-language': ' ko-KR,ko;q=0.9,en-US;q=0.8,en;q=0.7',
+                            'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.99 Safari/537.36',
                         }
-                        var $ = cheerio.load(body);
-                        var postElements = $('#nx_related_keywords > dl > dd.lst_relate._related_keyword_list > ul > li');
-                        console.log("-----------------------");
-                        console.log(value.num + "위 : " + value.text);
-                        console.log("연관검색어 : ");
-                        postElements.each(
-                            function () {
-                                var related_keyword = $(this).find("a").text();
-                                
-                                
-                                console.log(related_keyword);
-                                
-                                
+                    },
+                        function (error, response, body) {
+                            if (error) {
+                                throw error;
                             }
-                        );
-                        console.log("-----------------------");
-                    });
+                            var $ = cheerio.load(body);
+                            var postElements = $('#nx_related_keywords > dl > dd.lst_relate._related_keyword_list > ul > li');
+
+                            var related_keyword = [];
+                            postElements.each(
+                                function () {
+                                    related_keyword.push($(this).find('a').text());
+                                }
+                            );
+                            value.related_keyword = related_keyword;
+                            resolve(true);
+                        });
+                }));
             }
         );
-        console.log('p2 실행 종료.');
+        Promise.all(promiseArray).then(function (values) {
+            linkTable.forEach(
+                function (value) {
+                    if (value.num === '11') {
+                        console.log('프로그램 종료.')
+                        process.exit();
+                    }
+                    console.log('-----------------------');
+                    console.log(value.num + '위 : ' + value.text);
+                    console.log('연관검색어 : ');
+                    value.related_keyword.forEach(function (keyword) {
+                        console.log(keyword);
+                    });
+                    console.log('-----------------------');
+                }
+            )
+        });
     })
-    console.log('2. 소스코드 끝났습니다.');
 }
-
 
 key();
