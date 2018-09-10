@@ -63,22 +63,28 @@ async function getRelatedKeywordList(keywordList) {
 }
 
 async function key() {
-    console.log('-----------------------');
-    console.log('실시간 검색어의 연관 검색어 추출 실행.');
-    console.log('-----------------------');
-
-    const keywordList = await getKeywordList();
-    const keywordListWithRelatedKeywords = _.slice(await getRelatedKeywordList(keywordList), 0, 10);
-
-    keywordListWithRelatedKeywords.forEach((keyword) => {
+    try {
         console.log('-----------------------');
-        console.log(keyword.num + '위 : ' + keyword.text);
-        console.log('연관검색어 : ');
-        keyword.relatedKeywords.forEach(function (relatedKeyword) {
-            console.log(relatedKeyword);
+        console.log('실시간 검색어의 연관 검색어 추출 실행.');
+        console.log('-----------------------');
+    
+        const keywordList = await getKeywordList();
+        const keywordListWithRelatedKeywords = _.slice(await getRelatedKeywordList(keywordList), 0, 10);
+    
+        keywordListWithRelatedKeywords.forEach((keyword) => {
+            console.log('-----------------------');
+            console.log(keyword.num + '위 : ' + keyword.text);
+            console.log('연관검색어 : ');
+            keyword.relatedKeywords.forEach(function (relatedKeyword) {
+                console.log(relatedKeyword);
+            });
+            console.log('-----------------------');
         });
-        console.log('-----------------------');
-    });
+    }
+    catch (error) {
+        console.log(error);
+    }
+    
 }
 
 key();
